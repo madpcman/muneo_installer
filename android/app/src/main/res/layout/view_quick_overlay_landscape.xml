@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_overlay"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="0dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="6dp"
+    android:paddingBottom="6dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/panel_surface"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_gravity="start|center_vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:background="@drawable/bg_overlay_panel_state">
+
+        <ImageView
+            android:id="@+id/quick_decor_bg"
+            android:layout_width="140dp"
+            android:layout_height="56dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="0dp"
+            android:elevation="0dp"
+            android:background="@drawable/quick_decor_clip_round"
+            android:clipToOutline="true"
+            android:clickable="false"
+            android:focusable="false"
+            android:rotationY="180"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <ImageView
+            android:id="@+id/quick_decor_star"
+            android:layout_width="140dp"
+            android:layout_height="56dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="3dp"
+            android:adjustViewBounds="true"
+            android:elevation="1dp"
+            android:background="@drawable/quick_decor_clip_round"
+            android:clipToOutline="true"
+            android:clickable="false"
+            android:focusable="false"
+            android:rotationY="180"
+            android:scaleType="fitCenter"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:id="@+id/panel_container"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:elevation="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:background="@android:color/transparent">
+
+        <FrameLayout
+            android:layout_width="92dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="-14dp"
+            android:layout_marginEnd="6dp"
+            android:elevation="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <ImageView
+                android:id="@+id/drag_handle_shadow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/drag_handle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="20dp"
+                android:translationZ="20dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="@string/app_name" />
+
+            <ImageView
+                android:id="@+id/drag_handle_talk_shadow"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="-20dp"
+                android:rotationY="180"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/drag_handle_talk"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="-20dp"
+                android:rotationY="180"
+                android:elevation="28dp"
+                android:translationZ="28dp"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                android:contentDescription="@string/app_name" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/panel_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:id="@+id/btn_main_wrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_quick_button_selector"
+                android:paddingStart="12dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:id="@+id/btn_main"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_quick_main"
+                    android:tint="@color/quick_button_icon_tint"
+                    android:duplicateParentState="true"
+                    android:contentDescription="@string/overlay_btn_main" />
+
+                <TextView
+                    android:id="@+id/txt_main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/overlay_btn_main"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:textColor="@color/quick_button_text"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:duplicateParentState="true" />
+        </LinearLayout>
+
+            <Space
+                android:id="@+id/space_share_left"
+                android:layout_width="12dp"
+                android:layout_height="0dp" />
+
+            <LinearLayout
+                android:id="@+id/btn_share_wrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_quick_button_selector"
+                android:paddingStart="12dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp">
+
+                <ImageView
+                    android:id="@+id/btn_share"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_quick_screen"
+                    android:tint="@color/quick_button_icon_tint"
+                    android:duplicateParentState="true"
+                    android:contentDescription="@string/overlay_btn_screen" />
+
+                <TextView
+                    android:id="@+id/txt_share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/overlay_btn_screen"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:textColor="@color/quick_button_text"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:duplicateParentState="true" />
+        </LinearLayout>
+
+            <Space
+                android:id="@+id/space_share_right"
+                android:layout_width="12dp"
+                android:layout_height="0dp" />
+
+            <LinearLayout
+                android:id="@+id/btn_chat_wrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_quick_button_selector"
+                android:paddingStart="12dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center_vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                <ImageView
+                    android:id="@+id/btn_chat"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_quick_chat"
+                    android:tint="@color/quick_button_icon_tint"
+                    android:duplicateParentState="true"
+                    android:contentDescription="@string/overlay_btn_chat" />
+                </FrameLayout>
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <TextView
+                        android:id="@+id/txt_chat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/overlay_btn_chat"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:textColor="@color/quick_button_text"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:duplicateParentState="true" />
+
+                    <TextView
+                        android:id="@+id/badge_unread"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end|top"
+                        android:layout_marginTop="-8dp"
+                        android:layout_marginEnd="-16dp"
+                        android:minWidth="22dp"
+                        android:minHeight="22dp"
+                        android:gravity="center"
+                        android:paddingLeft="7dp"
+                        android:paddingRight="7dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        android:background="@drawable/bg_badge_red" />
+                </FrameLayout>
+        </LinearLayout>
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="0dp" />
+
+        <LinearLayout
+            android:id="@+id/btn_settings_wrap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="40dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@drawable/bg_quick_button_selector"
+            android:paddingStart="12dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+            <ImageView
+                android:id="@+id/btn_settings"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_quick_settings"
+                android:tint="@color/quick_button_icon_tint"
+                android:duplicateParentState="true"
+                android:contentDescription="@string/overlay_btn_settings" />
+
+            <TextView
+                android:id="@+id/txt_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/overlay_btn_settings"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="@color/quick_button_text"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:duplicateParentState="true" />
+        </LinearLayout>
+        </LinearLayout>
+
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

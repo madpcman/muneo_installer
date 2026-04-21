@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <!-- 필요한 정책만 선택 -->
+        <force-lock />          <!-- 화면 잠금 -->
+        <wipe-data />           <!-- 데이터 삭제(공장초기화 수준) -->
+        <reset-password />      <!-- 비밀번호 정책 등 -->
+        <!-- <expire-password /> 등 추가 가능 -->
+    </uses-policies>
+</device-admin>
