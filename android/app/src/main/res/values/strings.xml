@@ -3,6 +3,7 @@
     <string name="overlay_btn_main">메인</string>
     <string name="overlay_btn_screen">화면공유</string>
     <string name="overlay_btn_chat">클톡</string>
+    <string name="overlay_btn_translate">AI번역</string>
     <string name="overlay_btn_settings">설정</string>
     <string name="overlay_btn_mic">마이크</string>
     <string name="overlay_btn_close">닫기</string>
