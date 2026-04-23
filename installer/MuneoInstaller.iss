@@ -9,7 +9,7 @@
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "0.8.60"
+  #define AppVersion "0.8.62"
 #endif
 
 #if Brand == "claix"
