@@ -9,7 +9,7 @@
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "0.8.62"
+  #define AppVersion "0.8.64"
 #endif
 
 #if Brand == "claix"
@@ -17,6 +17,7 @@
   #define AppName "Claix"
   #define AppPublisher "Grib"
   #define AppExeName "claix.exe"
+  #define AppDataFolderName "Claix"
   #define InstallDirName "CLAIX"
   #define OutputBaseName "claix_class_setup"
 #elif Brand == "ai_mclassing"
@@ -24,6 +25,7 @@
   #define AppName "AI Mclassing"
   #define AppPublisher "Makers"
   #define AppExeName "ai_mclassing.exe"
+  #define AppDataFolderName "AI Mclassing"
   #define InstallDirName "AI_Mclassing"
   #define OutputBaseName "ai_mclassing_setup"
 #else
@@ -71,6 +73,10 @@ Source: "..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recurs
 ; (경로에 맞게 VC_redist.x64.exe 를 옮겨 두고 사용)
 Source: "VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
+[InstallDelete]
+Type: files; Name: "{commondesktop}\{#AppName}.lnk"
+Type: files; Name: "{autodesktop}\{#AppName}.lnk"
+
 [Icons]
 ; 바탕화면 바로가기
 Name: "{commondesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"
@@ -90,12 +96,17 @@ Filename: "{cmd}"; \
   Parameters: "/C netsh advfirewall firewall delete rule name=""{#AppName}"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall delete rule name=""{#AppName} Outbound"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall add rule name=""{#AppName}"" dir=in action=allow program=""{app}\{#AppExeName}"" enable=yes profile=any & netsh advfirewall firewall add rule name=""{#AppName} Outbound"" dir=out action=allow program=""{app}\{#AppExeName}"" enable=yes profile=any"; \
   StatusMsg: "{#AppName} 방화벽 예외를 등록하는 중..."; \
   Flags: runhidden waituntilterminated
-Filename: "{app}\{#AppExeName}"; Flags: nowait skipifnotsilent
+Filename: "{app}\{#AppExeName}"; Description: "{#AppName} 실행하기"; Flags: nowait postinstall skipifsilent unchecked
 
 [UninstallRun]
 Filename: "{cmd}"; \
   Parameters: "/C netsh advfirewall firewall delete rule name=""{#AppName}"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall delete rule name=""{#AppName} Outbound"" program=""{app}\{#AppExeName}"" >nul 2>&1"; \
   Flags: runhidden waituntilterminated
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{userappdata}\com.grib\{#AppDataFolderName}"
+Type: dirifempty; Name: "{userappdata}\com.grib"
+Type: filesandordirs; Name: "{app}"
 
 [Code]
 
