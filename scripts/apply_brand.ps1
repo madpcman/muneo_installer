@@ -656,17 +656,25 @@ if (Test-Path $builtFlutterAssetsDir) {
 }
 Copy-Item -Path (Join-Path $targetAssetsDir '*') -Destination $builtFlutterAssetsDir -Recurse -Force
 
-# 7) Copy the selected brand executable into Release and update installer defines.
+# 7) Copy the selected brand executable and app.so into Release and update installer defines.
 $releaseRunnerDir = Resolve-RepoPath 'build\windows\x64\runner\Release'
 $brandRunnerDir = Resolve-RepoPath (Join-Path 'build\windows\x64\runner\branding' $Brand)
 $brandExecutableName = "$windowsBinaryName.exe"
 $sourceBrandExecutable = Join-Path $brandRunnerDir $brandExecutableName
 $targetBrandExecutable = Join-Path $releaseRunnerDir $brandExecutableName
+$sourceBrandAppSo = Join-Path $brandRunnerDir 'data\app.so'
+$targetBrandAppSo = Join-Path $releaseRunnerDir 'data\app.so'
 if (-not (Test-Path $sourceBrandExecutable)) {
   throw "Missing brand executable: $sourceBrandExecutable"
 }
+if (-not (Test-Path $sourceBrandAppSo)) {
+  throw "Missing brand app.so: $sourceBrandAppSo"
+}
 if (-not (Test-Path $releaseRunnerDir)) {
   New-Item -ItemType Directory -Path $releaseRunnerDir -Force | Out-Null
+}
+if (-not (Test-Path (Split-Path -Parent $targetBrandAppSo))) {
+  New-Item -ItemType Directory -Path (Split-Path -Parent $targetBrandAppSo) -Force | Out-Null
 }
 foreach ($brandProperty in $configRoot.PSObject.Properties) {
   $otherWindowsBinaryName = [string]$brandProperty.Value.windows_binary_name
@@ -679,6 +687,7 @@ foreach ($brandProperty in $configRoot.PSObject.Properties) {
   }
 }
 Copy-Item -Path $sourceBrandExecutable -Destination $targetBrandExecutable -Force
+Copy-Item -Path $sourceBrandAppSo -Destination $targetBrandAppSo -Force
 
 $installerScriptPath = Resolve-RepoPath 'installer\MuneoInstaller.iss'
 $appVersion = Get-ThreePartFileVersion -Path $targetBrandExecutable

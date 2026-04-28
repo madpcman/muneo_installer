@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_installer.ps1 -Brand cl
 2. 브랜드 설정에 맞춰 앱 이름, 패키지명, Windows 실행파일 메타데이터, Flutter/Android 리소스 갱신
 3. `branding/<브랜드>/assets`를 프로젝트 `assets`로 복사
 4. `assets`를 `build\windows\x64\runner\Release\data\flutter_assets\assets`로 덮어쓰기
-5. `build\windows\x64\runner\branding\<브랜드>`의 실행파일을 `build\windows\x64\runner\Release`로 복사
+5. `build\windows\x64\runner\branding\<브랜드>`의 실행파일과 `data\app.so`를 `build\windows\x64\runner\Release`로 복사
 6. `Release` 폴더에서 다른 브랜드 실행파일 삭제
 7. 실행파일의 파일 버전을 읽어 `installer\MuneoInstaller.iss`의 `#define AppVersion` 갱신
 8. `installer\MuneoInstaller.iss`의 `#define Brand` 갱신
