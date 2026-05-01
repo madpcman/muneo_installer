@@ -9,7 +9,7 @@
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "0.8.64"
+  #define AppVersion "0.8.68"
 #endif
 
 #if Brand == "claix"
@@ -277,7 +277,7 @@ begin
 
   rbUser := TNewRadioButton.Create(DevicePage);
   rbUser.Parent := DevicePage.Surface;
-  rbUser.Caption := '사용자 장치';
+  rbUser.Caption := '사용자';
   rbUser.Left := ScaleX(8);
   rbUser.Top := ScaleY(16);
   rbUser.Width := ScaleX(200);
@@ -286,7 +286,7 @@ begin
 
   rbOpsBoard := TNewRadioButton.Create(DevicePage);
   rbOpsBoard.Parent := DevicePage.Surface;
-  rbOpsBoard.Caption := '대형칠판';
+  rbOpsBoard.Caption := '전자칠판';
   rbOpsBoard.Left := rbUser.Left;
   rbOpsBoard.Top := rbUser.Top + rbUser.Height + RadioGap;
   rbOpsBoard.Width := ScaleX(200);
@@ -295,7 +295,7 @@ begin
 
   rbOneQuick := TNewRadioButton.Create(DevicePage);
   rbOneQuick.Parent := DevicePage.Surface;
-  rbOneQuick.Caption := '소형칠판';
+  rbOneQuick.Caption := '모둠칠판';
   rbOneQuick.Left := rbUser.Left;
   rbOneQuick.Top := rbOpsBoard.Top + rbOpsBoard.Height + RadioGap;
   rbOneQuick.Width := ScaleX(200);
