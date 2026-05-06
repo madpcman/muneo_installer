@@ -9,7 +9,11 @@
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "0.8.68"
+  #define AppVersion "0.8.73"
+#endif
+
+#ifndef ServiceType
+  #define ServiceType "PROD"
 #endif
 
 #if Brand == "claix"
@@ -121,6 +125,14 @@ const
   RequiredVCRedistMajor = 14;
   RequiredVCRedistMinor = 50;
   RequiredVCRedistBuild = 35719;
+
+function NormalizeServiceType(const Value: string): string;
+begin
+  if SameText(Trim(Value), 'DEV') then
+    Result := 'DEV'
+  else
+    Result := 'PROD';
+end;
 
 function IsVCRedistInstalled: Boolean;
 var
@@ -396,6 +408,11 @@ begin
       CfgFile,
       'deviceType=' + DeviceType + #13#10,
       False  { append = False → 항상 새로 작성 }
+    );
+    SaveStringToFile(
+      CfgFile,
+      'ServiceType=' + NormalizeServiceType('{#ServiceType}') + #13#10,
+      True
     );
 
     if PreservedLicenseVerified <> '' then
