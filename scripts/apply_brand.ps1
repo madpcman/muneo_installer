@@ -247,6 +247,9 @@ $cardShadow = Normalize-ArgbHex ([string]$colors.card_shadow)
 $selectTileBorderSelected = Normalize-ArgbHex ([string]$colors.select_tile_border_selected)
 $selectTileBorderDefault = Normalize-ArgbHex ([string]$colors.select_tile_border_default)
 $selectTileShadow = Normalize-ArgbHex ([string]$colors.select_tile_shadow)
+$screenShareReceiverSelectedBorder = Normalize-ArgbHex ([string]$colors.screen_share_receiver_selected_border)
+$screenShareReceiverSelectedBackground = Normalize-ArgbHex ([string]$colors.screen_share_receiver_selected_background)
+$screenShareReceiverSelectedText = Normalize-ArgbHex ([string]$colors.screen_share_receiver_selected_text)
 $selectPromptBg = Normalize-ArgbHex ([string]$colors.select_prompt_bg)
 $selectPromptText = Normalize-ArgbHex ([string]$colors.select_prompt_text)
 $inputFillBg = Normalize-ArgbHex ([string]$colors.input_fill_bg)
@@ -314,6 +317,9 @@ class BrandColors {
   static const Color selectTileBorderSelected = Color($selectTileBorderSelected);
   static const Color selectTileBorderDefault = Color($selectTileBorderDefault);
   static const Color selectTileShadow = Color($selectTileShadow);
+  static const Color screenShareReceiverSelectedBorder = Color($screenShareReceiverSelectedBorder);
+  static const Color screenShareReceiverSelectedBackground = Color($screenShareReceiverSelectedBackground);
+  static const Color screenShareReceiverSelectedText = Color($screenShareReceiverSelectedText);
 
   static const Color selectPromptBackground = Color($selectPromptBg);
   static const Color selectPromptText = Color($selectPromptText);
