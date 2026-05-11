@@ -232,7 +232,7 @@ Update-FileRegex -Path (Resolve-RepoPath 'windows/runner/main.cpp') -Pattern 'L"
 # source package rewrites on every brand switch.
 Update-FileRegex -Path (Resolve-RepoPath 'android/app/build.gradle.kts') -Pattern 'namespace\s*=\s*"[^"]+"' -Replacement 'namespace = "kr.co.grib.claix"'
 Update-FileRegex -Path (Resolve-RepoPath 'android/app/build.gradle.kts') -Pattern 'applicationId\s*=\s*"[^"]+"' -Replacement "applicationId = `"$packageName`""
-Update-FileRegex -Path (Resolve-RepoPath 'android/app/src/main/AndroidManifest.xml') -Pattern 'android:label="[^"]+"' -Replacement "android:label=`"$displayName`""
+Update-FileRegex -Path (Resolve-RepoPath 'android/app/src/main/AndroidManifest.xml') -Pattern 'android:label="[^"]+"' -Replacement 'android:label="@string/app_name"'
 Update-FileRegex -Path (Resolve-RepoPath 'android/app/src/main/AndroidManifest.xml') -Pattern 'android:name="\.ScreenCaptureService"' -Replacement 'android:name="kr.co.grib.claix.ScreenCaptureService"'
 Update-FileRegex -Path (Resolve-RepoPath 'android/app/src/main/AndroidManifest.xml') -Pattern 'android:name="\.OverlayService"' -Replacement 'android:name="kr.co.grib.claix.OverlayService"'
 Update-FileRegex -Path (Resolve-RepoPath 'android/app/src/main/AndroidManifest.xml') -Pattern 'android:name="\.MainActivity"' -Replacement 'android:name="kr.co.grib.claix.MainActivity"'
