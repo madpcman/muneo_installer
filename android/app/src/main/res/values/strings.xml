@@ -7,4 +7,5 @@
     <string name="overlay_btn_settings">설정</string>
     <string name="overlay_btn_mic">마이크</string>
     <string name="overlay_btn_close">닫기</string>
+    <string name="remote_control_accessibility_description">원격 제어를 위해 화면 터치 동작을 실행합니다.</string>
 </resources>

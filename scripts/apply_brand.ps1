@@ -564,6 +564,7 @@ $overlayBtnTranslateXml = Escape-XmlText $overlayBtnTranslate
 $overlayBtnSettingsXml = Escape-XmlText $overlayBtnSettings
 $overlayBtnMicXml = Escape-XmlText $overlayBtnMic
 $overlayBtnCloseXml = Escape-XmlText $overlayBtnClose
+$remoteControlAccessibilityDescriptionXml = Escape-XmlText (Convert-FromCodePoints @(0xC6D0, 0xACA9, 0x0020, 0xC81C, 0xC5B4, 0xB97C, 0x0020, 0xC704, 0xD574, 0x0020, 0xD654, 0xBA74, 0x0020, 0xD130, 0xCE58, 0x0020, 0xB3D9, 0xC791, 0xC744, 0x0020, 0xC2E4, 0xD589, 0xD569, 0xB2C8, 0xB2E4, 0x002E))
 
 $androidStringsPath = Resolve-RepoPath 'android/app/src/main/res/values/strings.xml'
 $androidOverlayStringsXml = @"
@@ -576,6 +577,7 @@ $androidOverlayStringsXml = @"
     <string name="overlay_btn_settings">$overlayBtnSettingsXml</string>
     <string name="overlay_btn_mic">$overlayBtnMicXml</string>
     <string name="overlay_btn_close">$overlayBtnCloseXml</string>
+    <string name="remote_control_accessibility_description">$remoteControlAccessibilityDescriptionXml</string>
 </resources>
 "@
 Write-Utf8NoBom -Path $androidStringsPath -Content $androidOverlayStringsXml
