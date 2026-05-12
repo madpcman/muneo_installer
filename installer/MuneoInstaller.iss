@@ -49,7 +49,7 @@ DefaultGroupName={#AppPublisher}
 DisableProgramGroupPage=yes
 
 OutputDir=.
-OutputBaseFilename={#OutputBaseName}_{#SetupSetting("AppVersion")}
+OutputBaseFilename={#OutputBaseName}_{#SetupSetting("AppVersion")}_{#ServiceType}
 SetupIconFile=..\assets\app_icon.ico
 UninstallDisplayIcon={app}\{#AppExeName}
 
