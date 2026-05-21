@@ -102,6 +102,8 @@ Filename: "{cmd}"; \
   Flags: runhidden waituntilterminated
 Filename: "{app}\{#AppExeName}"; Description: "{#AppName} 실행하기"; Flags: nowait postinstall skipifsilent unchecked
 
+Filename: "{app}\{#AppExeName}"; Flags: nowait; Check: WizardSilent
+
 [UninstallRun]
 Filename: "{cmd}"; \
   Parameters: "/C netsh advfirewall firewall delete rule name=""{#AppName}"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall delete rule name=""{#AppName} Outbound"" program=""{app}\{#AppExeName}"" >nul 2>&1"; \
@@ -118,6 +120,7 @@ var
   DevicePage: TWizardPage;
   rbUser, rbOpsBoard, rbOneQuick: TRadioButton;
   DeviceType: string;
+  PreservedUserType: string;
   PreservedLicenseVerified: string;
   PreservedLicenseKey: string;
 
@@ -274,6 +277,7 @@ var
 begin
   { 기본값: teacher }
   DeviceType := 'user';
+  PreservedUserType := '';
   PreservedLicenseVerified := '';
   PreservedLicenseKey := '';
   RadioMinHeight := ScaleY(24);
@@ -376,7 +380,7 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  CfgDir, CfgFile: string;
+  CfgDir, CfgFile, ExistingDeviceType: string;
   ResultCode: Integer;
 begin
   { 설치 완료 후 config\device_config.ini 기록 }
@@ -392,6 +396,20 @@ begin
     );
 
     CfgFile := ExpandConstant('{app}\config\device_config.ini');
+    ExistingDeviceType := ReadExistingConfigValue(CfgFile, 'deviceType');
+    if ExistingDeviceType = '' then
+      ExistingDeviceType := ReadExistingDeviceType(CfgFile);
+
+    if SameText(ExistingDeviceType, 'user') then
+      DeviceType := 'user'
+    else if SameText(ExistingDeviceType, 'opsboard') then
+      DeviceType := 'opsboard'
+    else if SameText(ExistingDeviceType, 'onequick') then
+      DeviceType := 'onequick';
+
+    PreservedUserType := '';
+    if SameText(ExistingDeviceType, 'user') then
+      PreservedUserType := ReadExistingConfigValue(CfgFile, 'userType');
     PreservedLicenseVerified := ReadExistingConfigValue(CfgFile, 'licenseVerified');
     PreservedLicenseKey := ReadExistingConfigValue(CfgFile, 'licenseKey');
   end;
@@ -414,6 +432,15 @@ begin
       'ServiceType=' + NormalizeServiceType('{#ServiceType}') + #13#10,
       True
     );
+
+    if PreservedUserType <> '' then
+    begin
+      SaveStringToFile(
+        CfgFile,
+        'userType=' + PreservedUserType + #13#10,
+        True
+      );
+    end;
 
     if PreservedLicenseVerified <> '' then
     begin
