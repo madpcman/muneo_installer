@@ -9,11 +9,12 @@
 #endif
 
 #ifndef AppVersion
-  #define AppVersion "0.8.73"
+  #define AppVersion "0.9.1"
 #endif
 
 #ifndef ServiceType
   #define ServiceType "PROD"
+;  #define ServiceType "DEV"
 #endif
 
 #if Brand == "claix"
@@ -100,7 +101,7 @@ Filename: "{cmd}"; \
   Parameters: "/C netsh advfirewall firewall delete rule name=""{#AppName}"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall delete rule name=""{#AppName} Outbound"" program=""{app}\{#AppExeName}"" >nul 2>&1 & netsh advfirewall firewall add rule name=""{#AppName}"" dir=in action=allow program=""{app}\{#AppExeName}"" enable=yes profile=any & netsh advfirewall firewall add rule name=""{#AppName} Outbound"" dir=out action=allow program=""{app}\{#AppExeName}"" enable=yes profile=any"; \
   StatusMsg: "{#AppName} 방화벽 예외를 등록하는 중..."; \
   Flags: runhidden waituntilterminated
-Filename: "{app}\{#AppExeName}"; Description: "{#AppName} 실행하기"; Flags: nowait postinstall skipifsilent unchecked
+Filename: "{app}\{#AppExeName}"; Description: "{#AppName} 실행하기"; Flags: nowait postinstall skipifsilent
 
 Filename: "{app}\{#AppExeName}"; Flags: nowait; Check: WizardSilent
 
