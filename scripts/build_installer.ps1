@@ -1,10 +1,13 @@
 param(
   [Parameter(Mandatory = $true)]
-  [ValidateSet('claix', 'ai_mclassing')]
+  [ValidateSet('claix', 'ai_mclassing', 'iot_bridge')]
   [string]$Brand,
 
   [ValidateSet('debug', 'profile', 'release')]
   [string]$Mode = 'release',
+
+  [ValidateSet('PROD', 'DEV')]
+  [string]$ServiceType = 'PROD',
 
   [switch]$SkipApply,
   [switch]$SkipWindowsBuild
@@ -43,6 +46,38 @@ function Remove-StaleWindowsExecutables {
   }
 }
 
+function Copy-WindowsReleaseBrandArtifacts {
+  param([string]$BrandName)
+
+  $brandConfig = $brandsConfig.PSObject.Properties[$BrandName].Value
+  if ($null -eq $brandConfig) {
+    throw "Brand '$BrandName' not found in branding/brands.json"
+  }
+
+  $binaryName = [string]$brandConfig.windows_binary_name
+  if ([string]::IsNullOrWhiteSpace($binaryName)) {
+    throw "Missing windows_binary_name for brand '$BrandName'"
+  }
+
+  $releaseDir = Join-Path $repoRoot 'build\windows\x64\runner\Release'
+  $sourceExe = Join-Path $releaseDir "$binaryName.exe"
+  $sourceAppSo = Join-Path $releaseDir 'data\app.so'
+  if (-not (Test-Path $sourceExe)) {
+    throw "Windows release executable not found: $sourceExe"
+  }
+  if (-not (Test-Path $sourceAppSo)) {
+    throw "Windows release app.so not found: $sourceAppSo"
+  }
+
+  $installerBrandDir = Join-Path 'D:\Projects\Grib\LocalLinkSchool\muneo_installer\build\windows\x64\runner\branding' $BrandName
+  $installerBrandDataDir = Join-Path $installerBrandDir 'data'
+  New-Item -ItemType Directory -Path $installerBrandDataDir -Force | Out-Null
+
+  Copy-Item -LiteralPath $sourceExe -Destination (Join-Path $installerBrandDir "$binaryName.exe") -Force
+  Copy-Item -LiteralPath $sourceAppSo -Destination (Join-Path $installerBrandDataDir 'app.so') -Force
+  Write-Host "[copy] Windows release artifacts copied to installer branding: $installerBrandDir"
+}
+
 if (-not $SkipWindowsBuild) {
   Remove-StaleWindowsExecutables -BuildMode $Mode
   if ($Mode -eq 'release') {
@@ -52,6 +87,9 @@ if (-not $SkipWindowsBuild) {
   }
   if ($LASTEXITCODE -ne 0) {
     throw "Windows build failed with exit code $LASTEXITCODE"
+  }
+  if ($Mode -eq 'release') {
+    Copy-WindowsReleaseBrandArtifacts -BrandName $Brand
   }
 }
 
@@ -73,9 +111,9 @@ if ($null -ne $isccCommand) {
   $isccPath = $defaultIscc
 }
 
-& $isccPath "/DBrand=$Brand" "/DAppVersion=$appVersion" .\installer\MuneoInstaller.iss
+& $isccPath "/DBrand=$Brand" "/DAppVersion=$appVersion" "/DServiceType=$ServiceType" .\installer\MuneoInstaller.iss
 if ($LASTEXITCODE -ne 0) {
   throw "Inno Setup build failed with exit code $LASTEXITCODE"
 }
 
-Write-Host "[OK] Installer built. brand=$Brand mode=$Mode version=$appVersion"
+Write-Host "[OK] Installer built. brand=$Brand mode=$Mode version=$appVersion serviceType=$ServiceType"
