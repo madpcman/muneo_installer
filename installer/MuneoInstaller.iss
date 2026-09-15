@@ -59,6 +59,7 @@ ArchitecturesInstallIn64BitMode=x64
 Compression=lzma
 SolidCompression=yes
 UsePreviousAppDir=no
+SetupLogging=yes
 
 
 [Languages]
@@ -129,6 +130,126 @@ const
   RequiredVCRedistMajor = 14;
   RequiredVCRedistMinor = 50;
   RequiredVCRedistBuild = 35719;
+  SecurityStateKey = 'SOFTWARE\{#AppPublisher}\{#InstallDirName}\Installer\DefenderExclusions';
+  SmartAppControlKey = 'SYSTEM\CurrentControlSet\Control\CI\Policy';
+
+function PSQuote(Value: string): string;
+begin
+  StringChangeEx(Value, '''', '''''', True);
+  Result := '''' + Value + '''';
+end;
+
+function RunSecurityCommand(const Operation, Command: string): Integer;
+var
+  Parameters, OutputPath: string;
+  Output: AnsiString;
+  ExitCode: Integer;
+begin
+  OutputPath := ExpandConstant('{tmp}\muneo-security-result.txt');
+  DeleteFile(OutputPath);
+  Parameters := '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "' +
+    '$ErrorActionPreference = ''Stop''; try { ' + Command +
+    ' } catch { $_.Exception.Message | Out-File -LiteralPath ' + PSQuote(OutputPath) +
+    ' -Encoding utf8; exit 1 }"';
+  Log('Security: ' + Operation);
+  if Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+    Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
+    Result := ExitCode
+  else
+  begin
+    Log('Security: could not start PowerShell: ' + SysErrorMessage(ExitCode));
+    Result := -1;
+  end;
+  if LoadStringFromFile(OutputPath, Output) then
+    Log('Security: ' + string(Output));
+  Log(Format('Security: %s returned %d', [Operation, Result]));
+end;
+
+procedure ConfigureWindowsSecurity;
+var
+  AppPath, Command, CiToolPath: string;
+  State: Cardinal;
+  ExitCode: Integer;
+begin
+  AppPath := ExpandConstant('{app}');
+  WizardForm.StatusLabel.Caption := 'Windows 보안 설정을 적용하는 중...';
+  Command := '$p = ' + PSQuote(AppPath) + '; ' +
+    'if (@((Get-MpPreference).ExclusionPath) -contains $p) { exit 0 }; ' +
+    'Add-MpPreference -ExclusionPath $p; ' +
+    'if (@((Get-MpPreference).ExclusionPath) -notcontains $p) ' +
+    '{ throw ''Defender exclusion was not saved (check device policy).'' }; exit 10';
+  ExitCode := RunSecurityCommand('Add Defender folder exclusion', Command);
+  if ExitCode = 10 then
+  begin
+    { Keep ownership across upgrades; never claim an existing exclusion. }
+    if not RegWriteDWordValue(HKLM64, SecurityStateKey, AppPath, 1) then
+      Log('Security: WARNING: could not record exclusion ownership for uninstall.');
+  end
+  else if ExitCode <> 0 then
+    Log('Security: WARNING: Defender exclusion failed; installation will continue.');
+
+  { No key means SAC is unavailable; do not create it on unsupported Windows. }
+  if not RegQueryDWordValue(HKLM64, SmartAppControlKey,
+    'VerifiedAndReputablePolicyState', State) then
+  begin
+    Log('Security: Smart App Control is unavailable; skipped.');
+    Exit;
+  end;
+  CiToolPath := ExpandConstant('{sys}\CiTool.exe');
+  if not FileExists(CiToolPath) then
+  begin
+    Log('Security: WARNING: CiTool.exe is unavailable; Smart App Control unchanged.');
+    Exit;
+  end;
+  if not RegWriteDWordValue(HKLM64, SmartAppControlKey,
+    'VerifiedAndReputablePolicyState', 0) then
+  begin
+    Log('Security: WARNING: could not disable Smart App Control.');
+    Exit;
+  end;
+  { Refresh even if the registry was already Off, in case a previous refresh failed. }
+  if not Exec(CiToolPath, '-r', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
+  begin
+    Log('Security: WARNING: could not start CiTool: ' + SysErrorMessage(ExitCode));
+    Exit;
+  end;
+  if ExitCode <> 0 then
+  begin
+    Log(Format('Security: WARNING: CiTool refresh failed (%d).', [ExitCode]));
+    Exit;
+  end;
+  ExitCode := RunSecurityCommand('Verify Smart App Control is Off',
+    '$state = (Get-MpComputerStatus).SmartAppControlState; ' +
+    'if ([string]$state -ne ''Off'') ' +
+    '{ throw (''Smart App Control Off could not be confirmed. Reported state: '' + $state) }');
+  if ExitCode <> 0 then
+    Log('Security: WARNING: Smart App Control Off was not confirmed; check Windows Security.');
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  AppPath: string;
+  Owned: Cardinal;
+begin
+  if CurUninstallStep <> usUninstall then Exit;
+  AppPath := ExpandConstant('{app}');
+  if RegQueryDWordValue(HKLM64, SecurityStateKey, AppPath, Owned) and (Owned = 1) then
+  begin
+    if RunSecurityCommand('Remove installer-owned Defender folder exclusion',
+      '$p = ' + PSQuote(AppPath) + '; ' +
+      'if (@((Get-MpPreference).ExclusionPath) -contains $p) ' +
+      '{ Remove-MpPreference -ExclusionPath $p }; ' +
+      'if (@((Get-MpPreference).ExclusionPath) -contains $p) ' +
+      '{ throw ''Defender exclusion removal was not applied.'' }') = 0 then
+    begin
+      RegDeleteValue(HKLM64, SecurityStateKey, AppPath);
+      RegDeleteKeyIfEmpty(HKLM64, SecurityStateKey);
+    end
+    else
+      Log('Security: WARNING: exclusion cleanup failed; ownership retained.');
+  end;
+  { SAC is a machine-wide setting; uninstall must not enable it unexpectedly. }
+end;
 
 function NormalizeServiceType(const Value: string): string;
 begin
@@ -387,6 +508,7 @@ begin
   { 설치 완료 후 config\device_config.ini 기록 }
   if CurStep = ssInstall then
   begin
+    ConfigureWindowsSecurity;
     Exec(
       ExpandConstant('{cmd}'),
       '/C taskkill /F /T /IM {#AppExeName} >nul 2>&1',
