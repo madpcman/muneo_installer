@@ -133,6 +133,8 @@ const
   SecurityStateKey = 'SOFTWARE\{#AppPublisher}\{#InstallDirName}\Installer\DefenderExclusions';
   SmartAppControlKey = 'SYSTEM\CurrentControlSet\Control\CI\Policy';
 
+#include "SecurityProcess.iss"
+
 function PSQuote(Value: string): string;
 begin
   StringChangeEx(Value, '''', '''''', True);
@@ -143,23 +145,16 @@ function RunSecurityCommand(const Operation, Command: string): Integer;
 var
   Parameters, OutputPath: string;
   Output: AnsiString;
-  ExitCode: Integer;
 begin
   OutputPath := ExpandConstant('{tmp}\muneo-security-result.txt');
   DeleteFile(OutputPath);
   Parameters := '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "' +
-    '$ErrorActionPreference = ''Stop''; try { ' + Command +
+    '$ErrorActionPreference = ''Stop''; $ProgressPreference = ''SilentlyContinue''; try { ' + Command +
     ' } catch { $_.Exception.Message | Out-File -LiteralPath ' + PSQuote(OutputPath) +
     ' -Encoding utf8; exit 1 }"';
   Log('Security: ' + Operation);
-  if Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
-    Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
-    Result := ExitCode
-  else
-  begin
-    Log('Security: could not start PowerShell: ' + SysErrorMessage(ExitCode));
-    Result := -1;
-  end;
+  Result := RunSecurityProcess(Operation,
+    SecuritySystemDir + '\WindowsPowerShell\v1.0\powershell.exe', Parameters, 20);
   if LoadStringFromFile(OutputPath, Output) then
     Log('Security: ' + string(Output));
   Log(Format('Security: %s returned %d', [Operation, Result]));
@@ -178,7 +173,7 @@ begin
     'Add-MpPreference -ExclusionPath $p; ' +
     'if (@((Get-MpPreference).ExclusionPath) -notcontains $p) ' +
     '{ throw ''Defender exclusion was not saved (check device policy).'' }; exit 10';
-  ExitCode := RunSecurityCommand('Add Defender folder exclusion', Command);
+  ExitCode := RunSecurityCommand('Defender 설치 폴더 예외 등록', Command);
   if ExitCode = 10 then
   begin
     { Keep ownership across upgrades; never claim an existing exclusion. }
@@ -187,6 +182,12 @@ begin
   end
   else if ExitCode <> 0 then
     Log('Security: WARNING: Defender exclusion failed; installation will continue.');
+  { A stalled Defender provider is also used by the SAC status query. }
+  if ExitCode = -2 then
+  begin
+    Log('Security: skipping remaining security settings after timeout.');
+    Exit;
+  end;
 
   { No key means SAC is unavailable; do not create it on unsupported Windows. }
   if not RegQueryDWordValue(HKLM64, SmartAppControlKey,
@@ -195,7 +196,7 @@ begin
     Log('Security: Smart App Control is unavailable; skipped.');
     Exit;
   end;
-  CiToolPath := ExpandConstant('{sys}\CiTool.exe');
+  CiToolPath := SecuritySystemDir + '\CiTool.exe';
   if not FileExists(CiToolPath) then
   begin
     Log('Security: WARNING: CiTool.exe is unavailable; Smart App Control unchanged.');
@@ -208,17 +209,13 @@ begin
     Exit;
   end;
   { Refresh even if the registry was already Off, in case a previous refresh failed. }
-  if not Exec(CiToolPath, '-r', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
-  begin
-    Log('Security: WARNING: could not start CiTool: ' + SysErrorMessage(ExitCode));
-    Exit;
-  end;
+  ExitCode := RunSecurityProcess('스마트 앱 컨트롤 정책 갱신', CiToolPath, '-r', 10);
   if ExitCode <> 0 then
   begin
     Log(Format('Security: WARNING: CiTool refresh failed (%d).', [ExitCode]));
     Exit;
   end;
-  ExitCode := RunSecurityCommand('Verify Smart App Control is Off',
+  ExitCode := RunSecurityCommand('스마트 앱 컨트롤 해제 상태 확인',
     '$state = (Get-MpComputerStatus).SmartAppControlState; ' +
     'if ([string]$state -ne ''Off'') ' +
     '{ throw (''Smart App Control Off could not be confirmed. Reported state: '' + $state) }');
